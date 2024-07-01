@@ -17,4 +17,7 @@ REGISTRY = {
 
 if sys.platform == "linux":
 	os.environ.setdefault("SC2PATH",
-	                      os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))
+                          "/fs/nexus-scratch/peihong/3rdparty/StarCraftII_2410")
+	# os.environ.setdefault("SC2PATH", "~/StarCraftII")
+	# os.environ.setdefault("SC2PATH",
+	#                       os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))

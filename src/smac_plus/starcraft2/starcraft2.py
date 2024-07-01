@@ -295,7 +295,7 @@ class StarCraft2Env(MultiAgentEnv):
 
 	def _launch(self):
 		"""Launch the StarCraft II game."""
-		self._run_config = run_configs.get()
+		self._run_config = run_configs.get(version=self.game_version)
 		_map = maps.get(self.map_name)
 
 		# Setting up the interface
@@ -770,9 +770,9 @@ class StarCraft2Env(MultiAgentEnv):
 
 		if self.obs_all_health:
 			nf_al += 1 + self.shield_bits_ally
-			nf_en += 1 + self.shield_bits_enemy
+			# nf_en += 1 + self.shield_bits_enemy
 
-		if self.obs_enemy_health:
+		if self.obs_all_health or self.obs_enemy_health:
 			nf_en += 1 + self.shield_bits_enemy
 
 		if self.obs_last_action:
@@ -1038,9 +1038,9 @@ class StarCraft2Env(MultiAgentEnv):
 
 		if self.obs_all_health:
 			nf_al += 1 + self.shield_bits_ally
-			nf_en += 1 + self.shield_bits_enemy
+			# nf_en += 1 + self.shield_bits_enemy
 
-		if self.obs_enemy_health:
+		if self.obs_all_health or self.obs_enemy_health:
 			nf_en += 1 + self.shield_bits_enemy
 
 		own_feats = self.unit_type_bits
