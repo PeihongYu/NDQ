@@ -52,8 +52,8 @@ class EpisodeRunner:
 		if is_clean:
 			self.env.clean()
 			self.mac.clean()
-		if self.env.is_print_once and self.mac.is_print_once and self.args.test_is_print_once:
-			return
+		# if self.env.is_print_once and self.mac.is_print_once and self.args.test_is_print_once:
+		# 	return
 
 		terminated = False
 		episode_return = 0
@@ -124,7 +124,7 @@ class EpisodeRunner:
 
 		if test_mode and (len(self.test_returns) == self.args.test_nepisode):
 			self._log(cur_returns, cur_stats, log_prefix)
-		elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
+		elif not test_mode and self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
 			self._log(cur_returns, cur_stats, log_prefix)
 			if hasattr(self.mac.action_selector, "epsilon"):
 				self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)

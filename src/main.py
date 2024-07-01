@@ -14,15 +14,18 @@ import yaml
 from run import run
 
 SETTINGS['CONFIG']['READ_ONLY_CONFIG'] = False
-SETTINGS['CAPTURE_MODE'] = "fd" # set to "no" if you want to see stdout/stderr in console
+if os.name=="nt":
+    SETTINGS['CAPTURE_MODE'] = "sys"
+else:
+    SETTINGS['CAPTURE_MODE'] = "fd" # set to "no" if you want to see stdout/stderr in console
 logger = get_logger()
 
 ex = Experiment("pymarl")
 ex.logger = logger
 ex.captured_out_filter = apply_backspaces_and_linefeeds
 
-results_path = os.path.join(dirname(dirname(abspath(__file__))), "results")
-
+# results_path = os.path.join(dirname(dirname(abspath(__file__))), "results")
+results_path = "/fs/nexus-scratch/peihong/smac_results_2410"
 
 @ex.main
 def my_main(_run, _config, _log, env_args):
@@ -46,7 +49,7 @@ def _get_config(params, arg_name, subfolder):
     if config_name is not None:
         with open(os.path.join(os.path.dirname(__file__), "config", subfolder, "{}.yaml".format(config_name)), "r") as f:
             try:
-                config_dict = yaml.load(f)
+                config_dict = yaml.load(f, Loader=yaml.Loader)
             except yaml.YAMLError as exc:
                 assert False, "{}.yaml error: {}".format(config_name, exc)
         return config_dict
@@ -62,13 +65,22 @@ def recursive_dict_update(d, u):
     return d
 
 
+def parse_command(params, key, default):
+    result = default
+    for _i, _v in enumerate(params):
+        if _v.split("=")[0].strip() == key:
+            result = _v[_v.index('=')+1:].strip()
+            break
+    return result
+
+
 if __name__ == '__main__':
     params = deepcopy(sys.argv)
 
     # Get the defaults from default.yaml
     with open(os.path.join(os.path.dirname(__file__), "config", "default.yaml"), "r") as f:
         try:
-            config_dict = yaml.load(f)
+            config_dict = yaml.load(f, Loader=yaml.Loader)
         except yaml.YAMLError as exc:
             assert False, "default.yaml error: {}".format(exc)
 
@@ -83,8 +95,11 @@ if __name__ == '__main__':
     ex.add_config(config_dict)
 
     # Save to disk by default for sacred
-    logger.info("Saving to FileStorageObserver in results/sacred.")
-    file_obs_path = os.path.join(results_path, "sacred")
+    map_name = parse_command(params, "env_args.map_name", config_dict['env_args']['map_name'])
+    algo_name = parse_command(params, "name", config_dict['name'])
+    file_obs_path = os.path.join(results_path, "sacred", map_name, algo_name)
+
+    logger.info("Saving to FileStorageObserver in {}.".format(file_obs_path))
     ex.observers.append(FileStorageObserver.create(file_obs_path))
 
     ex.run_commandline(params)

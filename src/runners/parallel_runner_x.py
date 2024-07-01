@@ -191,9 +191,11 @@ class ParallelRunner_x:
 		cur_returns.extend(episode_returns)
 
 		n_test_runs = max(1, self.args.test_nepisode // self.batch_size) * self.batch_size
+		if self.args.evaluate:
+			self.logger.console_logger.info(f"Total episode: {len(self.test_returns)} / {n_test_runs}, average return: {np.mean(cur_returns)}")
 		if test_mode and (len(self.test_returns) == n_test_runs):
 			self._log(cur_returns, cur_stats, log_prefix)
-		elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
+		elif not test_mode and self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
 			self._log(cur_returns, cur_stats, log_prefix)
 			if hasattr(self.mac.action_selector, "epsilon"):
 				self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)

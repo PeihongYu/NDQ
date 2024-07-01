@@ -8,6 +8,7 @@ from types import SimpleNamespace as SN
 from utils.logging import Logger
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
+import json
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -30,28 +31,42 @@ def run(_run, _config, _log):
 
 	_log.info("Experiment Parameters:")
 	experiment_params = pprint.pformat(_config,
-	                                   indent=4,
-	                                   width=1)
+									   indent=4,
+									   width=1)
 	_log.info("\n\n" + experiment_params + "\n")
 
 	# configure tensorboard logger
 	if 'map_name' in args.env_args:
-		unique_token = "{}__{}__{}".format(
+		unique_token = "{}__{}__seed{}__{}".format(
 			args.name,
-			datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-			args.env_args['map_name']
+			args.env_args['map_name'],
+			_config['seed'],
+			datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		)
 	else:
-		unique_token = "{}__{}__{}".format(
+		unique_token = "{}__{}__seed{}__{}".format(
 			args.name,
-			datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-			args.env
+			args.env,
+			_config['seed'],
+			datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		)
+	
+	try:
+		map_name = _config["env_args"]["map_name"]
+	except:
+		map_name = _config["env_args"]["key"]
+		
 	args.unique_token = unique_token
 	if args.use_tensorboard:
-		tb_logs_direc = os.path.join(dirname(dirname(abspath(__file__))), "results", "tb_logs")
+		tb_logs_direc = os.path.join(args.local_results_path, "tb_logs", args.env, map_name)
+		# tb_logs_direc = os.path.join(dirname(dirname(abspath(__file__))), "results", "tb_logs", map_name)
 		tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
 		logger.setup_tb(tb_exp_direc)
+
+		# write config file (sacred's save: config_files.py)
+		config_str = json.dumps(vars(args), sort_keys=True, indent=2)
+		with open(os.path.join(tb_exp_direc, "config.json"), "w") as f:
+			f.write(config_str)
 
 	# sacred is on by default
 	logger.setup_sacred(_run)
@@ -92,8 +107,11 @@ def evaluate_sequential(args, runner):
 				for _ in range(args.test_nepisode):
 					runner.run(test_mode=True, thres=thres, is_clean=(_ == 0))
 	else:
-		for _ in range(args.test_nepisode):
+		n_test_runs = max(1, args.test_nepisode // runner.batch_size)
+		for _ in range(n_test_runs):
 			runner.run(test_mode=True)
+		# for _ in range(args.test_nepisode):
+		# 	runner.run(test_mode=True)
 
 	if args.save_replay:
 		runner.save_replay()
@@ -128,8 +146,8 @@ def run_sequential(args, logger):
 	}
 
 	buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
-	                      preprocess=preprocess,
-	                      device="cpu" if args.buffer_cpu_only else args.device)
+						  preprocess=preprocess,
+						  device="cpu" if args.buffer_cpu_only else args.device)
 
 	# Setup multiagent controller here
 	mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
@@ -191,6 +209,9 @@ def run_sequential(args, logger):
 
 			if args.evaluate or args.save_replay:
 				evaluate_sequential(args, runner)
+				logger.print_evaluation_stats()
+				logger.console_logger.info("Finished Evaluation")
+				time.sleep(11)
 				return
 
 	# start training
@@ -247,7 +268,13 @@ def run_sequential(args, logger):
 
 		if args.save_model and (runner.t_env - model_save_time >= args.save_model_interval or model_save_time == 0):
 			model_save_time = runner.t_env
-			save_path = os.path.join(args.local_results_path, "models", args.unique_token, str(runner.t_env))
+			try:
+				map_name = args.env_args["map_name"]
+			except:
+				map_name = args.env_args["key"]
+			
+			save_path = os.path.join(args.local_results_path, "models", args.env, map_name, args.unique_token, str(runner.t_env))
+			# save_path = os.path.join(args.local_results_path, "models", map_name, args.unique_token, str(runner.t_env))
 			# "results/models/{}".format(unique_token)
 			os.makedirs(save_path, exist_ok=True)
 			logger.console_logger.info("Saving models to {}".format(save_path))
