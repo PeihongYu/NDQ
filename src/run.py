@@ -83,6 +83,9 @@ def run(_run, _config, _log):
 		with open(os.path.join(tb_exp_direc, "config.json"), "w") as f:
 			f.write(config_str)
 
+	if args.use_wandb:
+		logger.setup_wandb(args, map_name)
+
 	# sacred is on by default
 	logger.setup_sacred(_run)
 
