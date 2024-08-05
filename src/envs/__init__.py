@@ -1,6 +1,8 @@
 from functools import partial
-from smac.env import MultiAgentEnv
+from .multiagentenv import MultiAgentEnv
 from smac_plus import StarCraft2Env, Tracker1Env, Join1Env
+from smacv2.env import StarCraft2Env as StarCraft2EnvV2
+from smacv2.env import StarCraftCapabilityEnvWrapper
 import sys
 import os
 
@@ -13,6 +15,7 @@ REGISTRY = {
 	"sc2": partial(env_fn, env=StarCraft2Env),
 	"tracker1": partial(env_fn, env=Tracker1Env),
 	"join1": partial(env_fn, env=Join1Env),
+	"sc2wrapped": partial(env_fn, env=StarCraftCapabilityEnvWrapper),
 }
 
 if sys.platform == "linux":

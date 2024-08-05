@@ -19,6 +19,17 @@ from components.transforms import OneHot
 import shutil
 
 
+def get_smacv2_map_name(_config):
+	map_name = _config["map_name"].split("_")[1]
+	n_units = _config["capability_config"]["n_units"]
+	n_enemies = _config["capability_config"]["n_enemies"]
+	sr = _config["sight_range_ratio"]
+	map_name = f"{map_name}_{n_units}_vs_{n_enemies}_sr{sr}"
+	epo = _config.get("prob_obs_enemy")
+	if epo is not None:
+		map_name += f"_epo{epo}"
+	return map_name
+
 def run(_run, _config, _log):
 	# check args sanity
 	_config = args_sanity_check(_config, _log)
@@ -53,6 +64,10 @@ def run(_run, _config, _log):
 	
 	try:
 		map_name = _config["env_args"]["map_name"]
+		if _config["env_args"]["sight_range"] == 2 and _config["env_args"]["shoot_range"] == 2:
+			map_name += "_hard"
+		if "10gen_" in map_name:
+			map_name = get_smacv2_map_name(_config["env_args"])
 	except:
 		map_name = _config["env_args"]["key"]
 		
@@ -270,6 +285,10 @@ def run_sequential(args, logger):
 			model_save_time = runner.t_env
 			try:
 				map_name = args.env_args["map_name"]
+				if args.env_args["sight_range"] == 2 and args.env_args["shoot_range"] == 2:
+					map_name += "_hard"
+				if "10gen_" in map_name:
+					map_name = get_smacv2_map_name(_config["env_args"])
 			except:
 				map_name = args.env_args["key"]
 			
