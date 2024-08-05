@@ -26,6 +26,7 @@ ex.captured_out_filter = apply_backspaces_and_linefeeds
 
 # results_path = os.path.join(dirname(dirname(abspath(__file__))), "results")
 results_path = "/fs/nexus-scratch/peihong/smac_results_2410"
+# results_path = "/fs/nexus-scratch/peihong/test_results"
 
 @ex.main
 def my_main(_run, _config, _log, env_args):
@@ -95,6 +96,7 @@ if __name__ == '__main__':
     ex.add_config(config_dict)
 
     # Save to disk by default for sacred
+    results_path = parse_command(params, "local_results_path", config_dict['local_results_path'])
     map_name = parse_command(params, "env_args.map_name", config_dict['env_args']['map_name'])
     algo_name = parse_command(params, "name", config_dict['name'])
     file_obs_path = os.path.join(results_path, "sacred", map_name, algo_name)
