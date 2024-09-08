@@ -37,7 +37,7 @@ class CateBCommFMAC:
 
 		self.is_print_once = False
 
-		if self.args.env_args['print_rew']:
+		if getattr(self.args.env_args, "print_rew", False):
 			self.c_step = 0
 			self.cut_mean_list = []
 			self.cut_mean_num_list = []
@@ -71,7 +71,7 @@ class CateBCommFMAC:
 		if self.args.comm:
 			agent_outputs, (mu, sigma), _, m_sample = self.test_forward(ep_batch, t_ep, test_mode=test_mode,
 			                                                            thres=thres, prob=prob)
-			if self.args.env_args['print_rew']:
+			if getattr(self.args.env_args, "print_rew", False):
 				data = mu.detach().cpu().squeeze().numpy()
 				s = 0
 				s_num = 0
@@ -301,7 +301,7 @@ class CateBCommFMAC:
 		return logits
 
 	def clean(self):
-		if self.args.env_args['print_rew']:
+		if getattr(self.args.env_args, "print_rew", False):
 			self.c_step = 0
 			self.cut_mean_list = []
 			self.cut_mean_num_list = []

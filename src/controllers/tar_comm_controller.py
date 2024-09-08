@@ -33,7 +33,7 @@ class TarCommMAC:
 
 		self.is_print_once = False
 
-		if self.args.env_args['print_rew']:
+		if getattr(self.args.env_args, "print_rew", False):
 			self.c_step = 0
 			self.cut_mean_num_list = []
 
@@ -204,7 +204,7 @@ class TarCommMAC:
 			return (None, None), comm, None
 
 	def clean(self):
-		if self.args.env_args['print_rew']:
+		if getattr(self.args.env_args, "print_rew", False):
 			self.c_step = 0
 			self.cut_mean_num_list = []
 			self.is_print_once = False

@@ -64,10 +64,10 @@ def run(_run, _config, _log):
 	
 	try:
 		map_name = _config["env_args"]["map_name"]
-		if _config["env_args"]["sight_range"] == 2 and _config["env_args"]["shoot_range"] == 2:
-			map_name += "_hard"
 		if "10gen_" in map_name:
 			map_name = get_smacv2_map_name(_config["env_args"])
+		elif _config["env_args"]["sight_range"] == 2 and _config["env_args"]["shoot_range"] == 2:
+			map_name += "_hard"
 	except:
 		map_name = _config["env_args"]["key"]
 		
@@ -288,10 +288,10 @@ def run_sequential(args, logger):
 			model_save_time = runner.t_env
 			try:
 				map_name = args.env_args["map_name"]
-				if args.env_args["sight_range"] == 2 and args.env_args["shoot_range"] == 2:
-					map_name += "_hard"
 				if "10gen_" in map_name:
-					map_name = get_smacv2_map_name(_config["env_args"])
+					map_name = get_smacv2_map_name(args.env_args)
+				elif args.env_args["sight_range"] == 2 and args.env_args["shoot_range"] == 2:
+					map_name += "_hard"
 			except:
 				map_name = args.env_args["key"]
 			

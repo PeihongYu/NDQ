@@ -5,13 +5,13 @@ from types import SimpleNamespace as SN
 
 
 # Define the maximum number of jobs for each account
-max_job_nums = [4, 2, 2, 8]
-# max_job_nums = [2, 2, 8]
+# max_job_nums = [4, 2, 2, 8]
+max_job_nums = [4, 2]
 account_combinations = [
     ["nexus", "tron", "medium"],      # 2 days, for qmix, 4 jobs max
     ["cml-tokekar", "cml-dpart", "cml-medium"],     # 3 days, for ippo/dm2, 2 jobs max
-    ["cml-tokekar", "cml-dpart", "cml-high"],     # 1.5 days, for qmix, 2 jobs max
-    ["cml-tokekar", "cml-dpart", "cml-high_long"],    # 14 days, for ippo/dm2, 8 jobs max, but actually 2 jobs max due to resources
+    # ["cml-tokekar", "cml-dpart", "cml-high"],     # 1.5 days, for qmix, 2 jobs max
+    # ["cml-tokekar", "cml-dpart", "cml-high_long"],    # 14 days, for ippo/dm2, 8 jobs max, but actually 2 jobs max due to resources
 ]
 
 # Define the parameters you want to iterate over
@@ -29,11 +29,13 @@ parameters = {
     "map_name": ["sc2_gen_terran"], #"sc2_gen_zerg", "sc2_gen_protoss", "sc2_gen_terran", "sc2_gen_protoss_epo", "sc2_gen_terran_epo", "sc2_gen_zerg_epo"],
     "sight_range": [0.2, 1, 5],
     "agent_num": [5, 10, 20],
-    "seed": [112358, 1285842, 78590, 119527, 122529],
+    "seed": [112358] #, 1285842, 78590, 119527, 122529],
 }
 
-root_dir = "/fs/nexus-scratch/peihong/smac_results_2410"
+root_dir = "/fs/nexus-projects/Guided_MARL/smacv2_masia_ndq"
 smac_dir = "/fs/nexus-scratch/peihong/3rdparty/StarCraftII_2410"
+os.makedirs(f'{root_dir}/slurm_scripts', exist_ok=True)
+os.makedirs(f'{root_dir}/slurm_logs', exist_ok=True)
 
 param_names = list(parameters.keys())
 param_values = [v for v in parameters.values()]
@@ -104,8 +106,3 @@ srun bash -c "{python_command}"
     # Print the job submission info
     result = ", ".join([f"{name}: {value}" for name, value in zip(param_names, combo)])
     print(f'Job submitted for parameters: {result}')
-
-
-    # python src/main.py --config=categorical_qmix --env-config=sc2 with env_args.map_name="1o_10b_vs_1r" comm_embed_dim=3 c_beta=0.1 comm_beta=0.0001 comm_entropy_beta=0.0 batch_size_run=8 runner='parallel_x' t_max=20050000 name='contrast_cate_qmix_smac_parallel_run8'
-
-    # python src/main.py --config=categorical_qmix --env-config=sc2 with env_args.map_name="3s_vs_5z" env_args.sight_range=2 env_args.shoot_range=2 env_args.obs_all_health=False env_args.obs_enemy_health=False comm_embed_dim=3 c_beta=0.1 comm_beta=0.0001 comm_entropy_beta=0.0 batch_size_run=8 runner='parallel_x' t_max=20050000 name='contrast_cate_qmix_smac_parallel_hard_run8'

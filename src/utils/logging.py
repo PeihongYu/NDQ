@@ -28,7 +28,8 @@ class Logger:
         self.use_sacred = True
 
     def setup_wandb(self, config, map_name):
-        wandb.init(project=config.project, entity=config.entity, group=map_name, name=config.unique_token, config=config.__dict__)
+        log_dir = "/fs/nexus-projects/Guided_MARL/smacv2_ndq_masia/wandb"
+        wandb.init(project=config.project, entity=config.entity, group=map_name, name=config.unique_token, config=config.__dict__, dir=log_dir)
         wandb.config = config
         # setup a custom step metric so that we can track
         # environment steps instead of wandb internal episodes
