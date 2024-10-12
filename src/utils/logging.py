@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import torch as th
 import wandb
-
+import os
 
 class Logger:
     def __init__(self, console_logger):
@@ -28,7 +28,8 @@ class Logger:
         self.use_sacred = True
 
     def setup_wandb(self, config, map_name):
-        log_dir = "/fs/nexus-projects/Guided_MARL/smacv2_ndq_masia/wandb"
+        log_dir = os.path.join(config.local_results_path, "wandb")
+        os.makedirs(log_dir, exist_ok=True)
         wandb.init(project=config.project, entity=config.entity, group=map_name, name=config.unique_token, config=config.__dict__, dir=log_dir)
         wandb.config = config
         # setup a custom step metric so that we can track

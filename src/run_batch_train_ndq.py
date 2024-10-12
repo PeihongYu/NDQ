@@ -50,7 +50,7 @@ for combo in combinations:
 
     # for smac
     # job_name = f"{param.algo_name}__{param.map_name}__seed_{param.seed}"
-    # python_command = f"python src/main.py --config={param.algo_name} --env-config={param.env_name} with env_args.map_name={param.map_name} t_max=20050000 seed={param.seed}"
+    # python_command = f"python src/main.py --config={param.algo_name} --env-config={param.env_name} with env_args.map_name={param.map_name} t_max=10050000 seed={param.seed}"
 
     # for smacv2
     job_name = f"{param.algo_name}__{param.map_name}__seed_{param.seed}_sr{param.sight_range}_{param.agent_num}_vs_{param.agent_num}"
